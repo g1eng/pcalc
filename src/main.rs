@@ -6,10 +6,10 @@
 use structopt::clap::{App, Arg};
 use std::str::FromStr;
 
-fn check_prime(testant: u64, vec: &[u64]) -> bool {
+fn check_prime(testant: u32, vec: &[u32]) -> bool {
     let mut i = 0;
-    let limit = vec.len() - 1;
-    while vec[i] < vec[limit] / 2 {
+    let limit_num = unsafe { f64::from(vec[vec.len() - 1]).sqrt().to_int_unchecked::<u32>() };
+    while vec[i] <= limit_num {
         if testant % vec[i] == 0 {
             return false;
         }
@@ -72,8 +72,8 @@ fn main() {
     };
 
 
-    let mut pr: Vec<u64> = vec![2];
-    let mut i: u64 = 3;
+    let mut pr: Vec<u32> = vec![2];
+    let mut i: u32 = 3;
     loop {
         if check_prime(i, &pr) {
             pr.push(i);
