@@ -8,7 +8,7 @@ struct Cli {
 fn check_prime(testant: u64, vec: &[u64]) -> bool {
     let mut i = 0;
     let limit = vec.len() - 1;
-    while vec[i] < vec[limit]/2 {
+    while vec[i] < vec[limit] / 2 {
         if testant % vec[i] == 0 {
             return false;
         }
