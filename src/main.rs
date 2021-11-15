@@ -1,10 +1,8 @@
-//! pcalc - A high-speed primary calculator
-//!
-//!
-
+//! pcalc - A simple primary calculator
 
 use structopt::clap::{App, Arg};
 use std::str::FromStr;
+use std::process::exit;
 
 fn check_prime(testant: u32, vec: &[u32]) -> bool {
     let mut i = 0;
@@ -23,8 +21,8 @@ fn check_prime(testant: u32, vec: &[u32]) -> bool {
 
 fn main() {
     let arg = App::new("pcalc")
-        .version("0.3.0")
-        .author("Suzume Nomura")
+        .version("0.3.2")
+        .author("Suzume Nomura <suzume315[ATT]g00.g1e.org>")
         .arg(
             Arg::with_name("capacity")
             .value_name("LIMIT")
@@ -55,7 +53,14 @@ fn main() {
         .arg(
             Arg::with_name("hex")
             .short("H")
-            .help("print value as a hex number")
+            .help("popup last primary as a hex number")
+            .required(false)
+            )
+        .arg(
+            Arg::with_name("check")
+            .short("c")
+            .long("check")
+            .help("check whether the number is a primary or not")
             .required(false)
             )
         .get_matches();
@@ -63,8 +68,16 @@ fn main() {
     let verbose = arg.is_present("verbose");
     let with_hex = arg.is_present("hex");
     let with_pop = arg.is_present("pop");
+    let for_check = arg.is_present("check");
     let capacity = match arg.value_of("capacity"){
         Some(x) => usize::from_str(x).expect("invalid capacity number!"),
+        None => {
+            println!("invalid capacity number, abort!");
+            return
+        }
+    };
+    let num_limit = match arg.value_of("capacity"){
+        Some(x) => u32::from_str(x).expect("invalid capacity number!"),
         None => {
             println!("invalid capacity number, abort!");
             return
@@ -74,25 +87,48 @@ fn main() {
 
     let mut pr: Vec<u32> = vec![2];
     let mut i: u32 = 3;
-    loop {
-        if check_prime(i, &pr) {
-            pr.push(i);
+    if capacity > 0 && ! for_check {
+        loop {
+                if check_prime(i, &pr) {
+                        pr.push(i);
+                }
+                if pr.len() >= capacity {
+                        break;
+                }
+                i += 2;
         }
-        if pr.len() >= capacity {
-            break;
+    } else if for_check {
+        loop {
+                if check_prime(i, &pr) {
+                        pr.push(i);
+                }
+                if i >= num_limit {
+                        break;
+                }
+                i += 2;
         }
-        i += 2;
     }
 
+    let last = pr[pr.len() - 1];
     if verbose {
         println!("{:?}", pr);
-    }
-    if with_pop {
-        let last = pr[pr.len() - 1];
+    } else if with_pop || with_hex {
         if with_hex {
             println!("{:?}", format!("{:#x}", last));
         } else {
             println!("{}", last);
+        }
+    } 
+    if for_check {
+        if verbose {
+            if last != num_limit {
+                println!("{} is not a primary number", num_limit);
+            } else {
+                println!("{} is a primary number", num_limit);
+            }
+        }
+        if last != num_limit {
+            exit(1);
         }
     }
 }
